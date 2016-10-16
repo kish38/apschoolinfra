@@ -1,0 +1,36 @@
+{% if messages %}
+	{% for message in messages %}
+		{% if message.tags == "error" %}
+			<div class="alert alert-danger">{{message}}</div>
+		{% else %}
+			<div class="alert alert-{{message.tags}}">{{message}}</div>
+		{% endif %}
+	{% endfor %}
+{% endif %}
+{% if form %}
+Creating New Incident
+<form action="/create_incident" method="post" id="create_incident_form">{% csrf_token %}
+<table>
+	{{form.as_table}}
+	<tr><td></td><td><input type="submit" value="Add"><input type="button" id="cancel" value="Cancel"></td></tr>
+</table>
+</form>
+<script type="text/javascript">
+$('#create_incident_form').submit(function( event ) {
+	event.preventDefault();
+	$.ajax({
+		url: "/create_incident",
+		method:'POST',
+		data:$(this).serialize(),
+		error:$('#create_incident').html('Internal Error, Try Again'),
+		success:function(data){
+			$('#create_incident').html(data);
+		},
+		complete:$('#create_incident').html('loading...')
+	});
+});
+$('#cancel').click(function(){
+	$('#create_incident').html('');
+});
+</script>
+{% endif %}

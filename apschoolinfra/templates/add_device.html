@@ -1,0 +1,33 @@
+{% if messages %}
+	{% for message in messages %}
+		{% if message.tags == "error" %}
+			<div class="alert alert-danger">{{message}}</div>
+		{% else %}
+			<div class="alert alert-{{message.tags}}">{{message}}</div>
+		{% endif %}
+	{% endfor %}
+{% endif %}
+{% if form %}
+Adding New Asset
+<form action="/add_device" method="post" id="device_add">{% csrf_token %}
+<table>
+	{{form.as_table}}
+	<tr><td></td><td><input type="submit" value="Add"></td></tr>
+</table>
+</form>
+<script type="text/javascript">
+$('#device_add').submit(function( event ) {
+	event.preventDefault();
+	$.ajax({
+		url: "/add_device",
+		method:'POST',
+		data:$(this).serialize(),
+		error:$('#new_device').html('Internal Error, Try Again'),
+		success:function(data){
+			$('#new_device').html(data);
+		},
+		complete:$('#new_device').html('loading...')
+	});
+});
+</script>
+{% endif %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}
+AP School INFRA
+{%endblock%}
+{% block nav_right %}
+<ul class="nav navbar-nav pull-right">
+	<li>
+		{% if user.is_authenticated %}
+			<a>{{user}}</a>
+		{% else %}
+			<a>Guest</a>
+		{% endif %}
+		
+	</li>
+</ul>
+{% endblock %}
+
+{% block menu_block %}
+<ul class="nav">
+
+<li><a><input id="technicians" type="button" class="btn" value="Technician View"></a></li>
+<li><a><input id="teachers" type="button" class="btn" value="Teachers View"></a></li>
+<li><a href="/admin_view"><input type="button" class="btn" value="Admin View"></a></li>
+{% if user.is_authenticated %}
+	<li><a><input type="button" class="btn" value="{{user}}"></a></li>
+	<li><a href="/logout/"><input type="button" class="btn" value="Logout"></a></li>
+{% else %}
+</br>
+{% endif %}
+</ul>
+{% endblock %}
+
+
+{% block content %}
+<div id="load_view">
+	{{request.session.user}}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script type="text/javascript">
+$('#teachers').on('click',function(){
+	{% if user.is_authenticated %}
+		window.location.href = "/{{request.session.user}}"
+	{% else %}
+		$.get('/teacher_login?login=1',function(data){
+    	$('#load_view').html(data);
+    })
+	{% endif %}
+});
+$('#technicians').on('click',function(){
+	{% if user.is_authenticated %}
+		window.location.href = "/{{request.session.user}}"
+	{% else %}
+		$.get('/technician_login?login=1',function(data){
+    		$('#load_view').html(data);
+    	});
+	{% endif %}
+});
+</script>
+{% endblock %}

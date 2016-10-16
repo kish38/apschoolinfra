@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block title %}
+Admin View
+{%endblock%}
+{% block nav_right %}
+<ul class="nav navbar-nav pull-right">
+	<li>
+		{% if user.is_authenticated %}
+			<a>{{user}}</a>
+		{% else %}
+			<a>Admin</a>
+		{% endif %}
+		
+	</li>
+</ul>
+{% endblock %}
+
+{% block menu_block %}
+<div class="navs">
+<input type="button" class="btn" value="Dashboard"></br></br>
+<input type="button" class="btn" value="Tickets"></br></br>
+<input type="button" class="btn" value="Documents"></br></br>
+<input type="button" class="btn" value="Assets"></br></br>
+<input type="button" class="btn" value="Training"></br></br>
+<a href="/logout/"><input type="button" class="btn" value="Logout"></a>
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+<div id="load_view">
+	<div id="Dashboard" class="tview">
+	<h2>Dashboard</h2>
+		<div style="float:left;width:60%;">
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">All Devices</h3>
+				</div>
+				<div class="panel-body">
+					{% for incident in device_meta %}
+					<div class="media border" style="padding:3%;box-shadow:2px 3px 1px #A0A0A0;">
+						  <div class="media-left">
+						  <span class="glyphicon glyphicon-eye-open"></span>
+						    <a href="#">
+						      Assets
+						    </a>
+						  </div>
+						  <div class="media-body">
+						    <h4 class="media-heading">{{incident.district}}</h4>
+						    <p>
+						    	<span class="glyphicon glyphicon-ok-sign"  style="color:#5CB85C"></span> <span class="badge">{{incident.ok}}</span>
+						    	<span class="glyphicon glyphicon-remove-sign" style="margin-left:5%;color:rgb(217, 83, 79)"></span> <span class="badge">{{incident.danger}}</span>
+						  	</p>
+						  </div>
+						</div>
+						
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+		<div style="float:left;width:35%;margin-left:1%;">
+			<div class="panel panel-info">
+				<div class="panel-heading">
+					<h3 class="panel-title">Employees</h3>
+				</div>
+				<div class="panel-body">
+					<table class="table">
+					{% for incident in employee_incidents %}
+						<tr>
+							<td>{{incident.employee}}</td>
+							<td>{{incident.district}}</td>
+							<td>{{incident.count}}</td>
+						</tr>
+					{% endfor %}
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="Assets" class="tview" style="display:none;width:80%;margin-left:auto;margin-right:auto;">
+		{% for district in all_devices %}
+			<div class="panel panel-info">
+					<div class="panel-heading">
+						<h3 class="panel-title">Assets in {{district.district}}</h3>
+					</div>
+					<div class="panel-body">
+						<table class="table">
+						{% for device in district.devices %}
+							<tr>
+								{% if device.status == "ok" %}
+								<td><span class="glyphicon glyphicon-ok-sign"  style="color:#5CB85C"></span></td>
+								{% else %}
+								<td><span class="glyphicon glyphicon-remove-sign"  style="color:#5CB85C"></span></td>
+								{% endif %}
+								<td>{{device.id}}</td>
+								<td>{{device.device_name}}</td>
+								<td>{{device.school.mandal.mandal_name}}</td>
+								<td>{{device.school.school_name}}</td>
+							</tr>
+						{% endfor %}
+						</table>
+					</div>
+				</div>
+		{% endfor %}
+	</div>
+	<div id="Tickets" class="tview" style="display:none;width:90%;margin-left:auto;margin-right:auto;">
+		<h2>All Incidents</h2>
+		<div style="float:left;width:60%;">
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">All Incidents</h3>
+				</div>
+				<div class="panel-body">
+					{% for incident in incidents %}
+					<div class="media border" style="padding:3%;box-shadow:2px 3px 1px #A0A0A0;">
+						  <div class="media-left">
+						  <span class="glyphicon glyphicon-eye-open"></span>
+						    <a href="#">
+						      {{incident.device.device_name}}
+						    </a>
+						  </div>
+						  <div class="media-body">
+						    <h4 class="media-heading">{{incident.title}}</h4>
+						    <p><span class="label label-warning">{{incident.status}}</span>
+						  	{{incident.device.school.mandal.mandal_name}},
+						  	{{incident.device.school.mandal.district_name}}
+						  	</p>
+						  </div>
+						</div>
+						
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+		<div style="float:left;width:35%;margin-left:1%;">
+			<div class="panel panel-info">
+				<div class="panel-heading">
+					<h3 class="panel-title">Open Tickets</h3>
+				</div>
+				<div class="panel-body">
+					<table class="table">
+					{% for incident in open_in %}
+						<tr>
+							<td>{{incident.id}}</td>
+							<td>{{incident.title}}</td>
+							<td>{{incident.device.school.mandal.district_name}}</td>
+						</tr>
+					{% endfor %}
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script type="text/javascript">
+$('.navs input').on('click',function(){
+	$('.tview').hide();
+	$('#'+this.value).toggle();
+});
+$('#teachers').on('click',function(){
+	{% if user.is_authenticated %}
+		window.location.href = "/{{request.session.user}}"
+	{% else %}
+		$.get('/teacher_login?login=1',function(data){
+    	$('#load_view').html(data);
+    })
+	{% endif %}
+});
+$('#technicians').on('click',function(){
+	{% if user.is_authenticated %}
+		window.location.href = "/{{request.session.user}}"
+	{% else %}
+		$.get('/technician_login?login=1',function(data){
+    		$('#load_view').html(data);
+    	});
+	{% endif %}
+});
+</script>
+{% endblock %}

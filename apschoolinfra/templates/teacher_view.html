@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Teacher Dashboard {% endblock %}
+{% block nav_right %}
+<ul class="nav navbar-nav pull-right">
+	<li>
+		<a>{{user}}</a>
+	</li>
+</ul>
+{% endblock %}
+{% block menu_block %}
+<div class="navs">
+<input type="button" class="btn" value="Dashboard"></br></br>
+<input type="button" class="btn" value="Tickets"></br></br>
+<input type="button" class="btn" value="Documents"></br></br>
+<input type="button" class="btn" value="Assets"></br></br>
+<input type="button" class="btn" value="Training"></br></br>
+<a href="/logout/"><input type="button" class="btn" value="Logout"></a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="load_view">
+	<div id="Dashboard" class="tview">
+	<h2>Dashboard</h2>
+	{% for key,val in school.items %}
+    	{{key}}:{{val}} </br>
+	{% endfor %}
+	</div>
+	<div id="Assets" class="tview" style="display:none;width:80%;margin-left:auto;margin-right:auto;">
+		<input type="button" class="btn" id="add_device" value="Add Device"></br><div id="new_device"></div>
+			<div class="panel panel-info">
+					<div class="panel-heading">
+						<h3 class="panel-title">Assets in School</h3>
+					</div>
+					<div class="panel-body">
+						<table class="table">
+						{% for device in devices %}
+							<tr>
+								{% if device.status == "ok" %}
+								<td><span class="glyphicon glyphicon-ok-sign"  style="color:#5CB85C"></span></td>
+								{% else %}
+								<td><span class="glyphicon glyphicon-remove-sign"  style="color:#5CB85C"></span></td>
+								{% endif %}
+								<td>{{device.id}}</td>
+								<td>{{device.device_name}}</td>
+								<td>{{device.school.mandal.mandal_name}}</td>
+								<td>{{device.school.school_name}}</td>
+							</tr>
+						{% endfor %}
+						</table>
+					</div>
+				</div>
+		
+	</div>
+
+	<div id="Tickets" class="tview" style="display:none">
+		<input type="button" class="btn" id="new_incident" value="Create"></br><div id="create_incident"></div>
+		<div style="float:left;width:60%;">
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">All Incidents</h3>
+				</div>
+				<div class="panel-body">
+					{% for incident in allincidents %}
+					<div class="media border" style="padding:3%;box-shadow:2px 3px 1px #A0A0A0;">
+						  <div class="media-left">
+						  <span class="glyphicon glyphicon-eye-open"></span>
+						    <a href="#">
+						      {{incident.device.device_name}}
+						    </a>
+						  </div>
+						  <div class="media-body">
+						    <h4 class="media-heading">{{incident.title}}</h4>
+						    <p><span class="label label-warning">{{incident.status}}</span>
+						  	{{incident.device.school.mandal.mandal_name}},
+						  	{{incident.device.school.mandal.district_name}}
+						  	</p>
+						  </div>
+						</div>
+						
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>
+{% endblock %}
+
+{% block javascripts %} 
+<script type="text/javascript">
+$('.navs input').on('click',function(){
+	$('.tview').hide();
+	$('#'+this.value).toggle();
+});
+
+$('#add_device').click(function(){
+	$.get('/add_device',function(data){
+		$('#new_device').html(data)
+	});
+});
+
+$('#new_incident').click(function(){
+	$.get('/create_incident',function(data){
+		$('#create_incident').html(data)
+	});
+});
+
+</script>
+{% endblock %}
