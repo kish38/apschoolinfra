@@ -16,13 +16,21 @@ Admin View
 {% endblock %}
 
 {% block menu_block %}
+<style type="text/css">
+ul li a input{
+	width:100%;
+}
+</style>
 <div class="navs">
-<input type="button" class="btn" value="Dashboard"></br></br>
-<input type="button" class="btn" value="Tickets"></br></br>
-<input type="button" class="btn" value="Documents"></br></br>
-<input type="button" class="btn" value="Assets"></br></br>
-<input type="button" class="btn" value="Training"></br></br>
-<a href="/logout/"><input type="button" class="btn" value="Logout"></a>
+<ul class="nav">
+<li><a><input type="button" class="btn" value="Dashboard"></a></li>
+<li><a><input type="button" class="btn" value="Tickets"></a></li>
+<li><a><input type="button" class="btn" value="Documents"></a></li>
+<li><a><input type="button" class="btn" value="Assets"></a></li>
+<li><a><input type="button" class="btn" value="Training"></a></li>
+<li><a><input type="button" class="btn" value="Administration"></a></li>
+<li><a href="/logout/"><input type="button" class="btn" value="Logout"></a></li>
+</ul>
 </div>
 
 {% endblock %}
@@ -126,6 +134,7 @@ Admin View
 						  	{{incident.device.school.mandal.mandal_name}},
 						  	{{incident.device.school.mandal.district_name}}
 						  	</p>
+						  	<span class="pull-right">{{incident.creater}}</span>
 						  </div>
 						</div>
 						
@@ -152,6 +161,97 @@ Admin View
 			</div>
 		</div>
 	</div>
+	<div id="Administration" class="tview" style="display:none;width:90%;margin-left:auto;margin-right:auto;">
+		<h2>Administration</h2>
+		<div style="width:65%;margin-left:1%;">
+			<div class="panel panel-info">
+				<div class="panel-heading">
+					<h3 class="panel-title">Add New School</h3>
+				</div>
+				<div class="panel-body">
+					<form method="post" action="as" id="add_school_form">{% csrf_token %}
+					<table class="table">
+						{{form.as_table}}
+						<tr>
+							<td><input name="add_school" type="hidden" value="1"></td>
+							<td><input type="submit" value="Add" class="btn btn-primary"></td>
+						</tr>
+						<tr>
+							<td colspan=2  id="load_here1"></td>
+						</tr>
+					</table>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div style="width:60%;margin-left:1%;">
+			<div class="panel panel-info">
+				<div class="panel-heading">
+					<h3 class="panel-title">Add Employee/Teacher/Device</h3>
+				</div>
+				<div class="panel-body">
+					<form action="admin_view" method="post" id="add_t">{% csrf_token %}
+					<table class="table">
+						<tr>
+							<td>New</td>
+							<td>
+								<select name="adding" id="adding">
+									<option>Employee</option>
+									<option>Teacher</option>
+									<option>Device</option>
+								</select>
+							</td>
+						</tr>
+						<tr class="up">
+							<td>Username</td>
+							<td><input type="text" name="username"></td>
+						</tr>
+						<tr class="up">
+							<td>Password</td>
+							<td><input type="text" name="password"></td>
+						</tr>
+						<tr id="device" style='display:none'>
+							<td>Device Name</td>
+							<td><input type="text" name="device"></td>
+						</tr>
+						<tr>
+							<td>Districts</td>
+							<td>
+							<select id="districts" name="district" required>
+								<option>Select</option>
+								{% for dist in districts%}
+									<option class="{{dist}}">{{dist}}</option>
+								{% endfor %}
+							</select>
+							</td>
+						</tr>
+						<tr id="mandals_tr" style="display:none">
+							<td>Mandals</td>
+							<td>
+							<select id="mandals" name="mandal">
+							</select>
+							</td>
+						</tr>
+						<tr id="school_tr" style="display:none">
+							<td>Schools</td>
+							<td>
+							<select id="school" name="school">
+							</select>
+							</td>
+						</tr>
+						<tr id="submit_addt" style="display:none">
+							<td></td><td><input type="submit" value="Submit" class="btn btn-primary"></td>
+						</tr>
+						<tr>
+							<td colspan=2  id="load_here"></td>
+						</tr>
+					</table>
+				</form>
+				</div>
+			</div>
+		</div>
+		
+	</div>
 </div>
 {% endblock %}
 
@@ -159,6 +259,9 @@ Admin View
 <script type="text/javascript">
 $('.navs input').on('click',function(){
 	$('.tview').hide();
+	//inn = $('#'+this.value).html();
+	//$('#'+this.value).html('');
+	//$('#'+this.value).html(inn);
 	$('#'+this.value).toggle();
 });
 $('#teachers').on('click',function(){
@@ -178,6 +281,81 @@ $('#technicians').on('click',function(){
     		$('#load_view').html(data);
     	});
 	{% endif %}
+});
+function prop_val(id,list,check){
+	$('#'+id+'_tr').show();
+	$('#'+id).html('');
+	$.each(list,function(k,v){
+		if (v.dist == check){
+		$('#'+id).append($('<option>', {
+    		value: v.id,
+    		text: v.text
+		}));}
+	});
+}
+$('#adding').on("change",function(){
+	if ($('#adding').find('option:selected').val() == "Device"){
+		$('.up').hide();
+		$('#device').show();}
+	else{
+		$('.up').show();$('#device').hide();
+		$('#mandals_tr').hide();
+		$('#school_tr').hide();
+	}
+});
+$("#districts").on("change",function(){
+	if($('#adding').find('option:selected').val() == 'Employee'){
+		$('#submit_addt').show();
+		return 1;
+	}
+	var mandals = []
+	$('#school').html('');
+	{% for mandal in mandals %}
+		mandals.push({id:{{mandal.id}} ,text:"{{mandal.mandal_name}}",dist:"{{mandal.district_name}}" })
+	{% endfor %}
+	prop_val('mandals',mandals,$('#districts').find('option:selected').val());
+	if ($('#school').find('option:selected').val() != undefined)
+		$('#submit_addt').show();
+	else
+		$('#submit_addt').hide();
+	
+});
+$("#mandals").on("change",function(){
+	var schools = []
+	{% for school in schools %}
+		schools.push({id:{{school.id}} ,text:"{{school.school_name}}/{{school.city_name}}",dist:{{school.mandal.id}} })
+	{% endfor %}
+	prop_val('school',schools,$('#mandals').find('option:selected').val());
+	if ($('#school').find('option:selected').val() != undefined)
+		$('#submit_addt').show();
+	else
+		$('#submit_addt').hide();
+});
+$('#add_t').submit(function( event ) {
+	event.preventDefault();
+	$.ajax({
+		url: "/admin_view",
+		method:'POST',
+		data:$(this).serialize(),
+		error:$('#load_here').html('Internal Error, Try Again'),
+		success:function(data){
+			$('#load_here').html(data);
+		},
+		complete:$('#load_here').html('loading...')
+	});
+});
+$('#add_school_form').submit(function( event ) {
+	event.preventDefault();
+	$.ajax({
+		url: "/admin_view",
+		method:'POST',
+		data:$(this).serialize(),
+		error:$('#load_here1').html('Internal Error, Try Again'),
+		success:function(data){
+			$('#load_here1').html(data);
+		},
+		complete:$('#load_here1').html('loading...')
+	});
 });
 </script>
 {% endblock %}

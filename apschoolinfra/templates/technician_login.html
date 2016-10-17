@@ -9,9 +9,10 @@
 {% endif %}
 
 {% if form %}
-<h2>Technician Login</h2>
+<h2>{{loginas}} Login</h2>
+<div style="width:50%;margin-left:auto;margin-right:auto">
 <form id="technician_login_form" action="/technician_login" method="post">{% csrf_token %}
-	<table>
+	<table class="table">
 		{{form.as_table}}
 		<tr>
 			<td></td>
@@ -19,12 +20,13 @@
 		</tr>
 	</table>
 </form>
+</div>
 {% endif %}
 <script type="text/javascript">
 $('#technician_login_form').submit(function( event ) {
 	event.preventDefault();
 	$.ajax({
-		url: "/technician_login",
+		url: "/{{loginas}}_login",
 		method:'POST',
 		data:$(this).serialize(),
 		error:$('#load_view').html('Internal Error, Try Again'),
@@ -37,6 +39,10 @@ $('#technician_login_form').submit(function( event ) {
 </script>
 {% if logged_in %}
 <script type="text/javascript">
-window.location.href = "/technician"
+{% if loginas == "admin" %}
+window.location.href = "/{{loginas}}_view"
+{% else %}
+window.location.href = "/{{loginas}}"
+{% endif %}
 </script>
 {% endif %}

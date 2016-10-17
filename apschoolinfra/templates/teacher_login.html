@@ -9,8 +9,9 @@
 {% endif %}
 {% if login %}
 	<h2>Teacher Login</h2>
-	<form action="/teacher_login/" method="post" id="tlogin_form">{% csrf_token %}
-	<table>
+	<form action="/teacher_login/" method="post" id="tlogin_form" >{% csrf_token %}
+	<div style="width:50%;margin-left:auto;margin-right:auto">
+	<table class="table">
 		<tr>
 			<td>UserName</td>
 			<td><input id="username" name="username" type="text"></td>
@@ -20,10 +21,11 @@
 			<td><input id="password" name="password" type="password"></td>
 		</tr>
 		<tr>
-			<td><input type="hidden" name="login" value="1"><input id="teacher_register" type="button" class="btn btn-primary" value="Register"></td>
-			<td><input type="submit" id="teacher_login_submit" value="Login"></td>
+			<td></td>
+			<td><input type="submit" class="btn btn-info" id="teacher_login_submit" value="Login"> <input type="hidden" name="login" value="1"><!--<input id="teacher_register" type="button" class="btn btn-primary" value="Register"></td> -->
 		</tr>
 	</table>
+	</div>
 	</form>
 	<script type="text/javascript">
 	$('#tlogin_form').submit(function( event ) {
@@ -48,12 +50,14 @@
 	</script>
 {% elif register %}
 <h2>Teacher Register</h2>
+<div style="width:50%;margin-left:auto;margin-right:auto">
 <form action="/teacher_login" method="post" id="tregister_form">{% csrf_token %}
-<table>
+<table class="table">
 {{form.as_table}}
 <tr><td><input type="hidden" name="login" value="1"></td><td><input type="submit" class="btn btn-success" value="Register"></td></tr>
 </table>
-
+</form>
+</div>
 <script type="text/javascript">
 $('#tregister_form').submit(function( event ) {
   event.preventDefault();

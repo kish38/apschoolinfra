@@ -1,8 +1,10 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}
 AP School INFRA
 {%endblock%}
 {% block nav_right %}
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <ul class="nav navbar-nav pull-right">
 	<li>
 		{% if user.is_authenticated %}
@@ -16,11 +18,16 @@ AP School INFRA
 {% endblock %}
 
 {% block menu_block %}
+<style type="text/css">
+ul li a input{
+	width:100%;
+}
+</style>
 <ul class="nav">
 
-<li><a><input id="technicians" type="button" class="btn" value="Technician View"></a></li>
-<li><a><input id="teachers" type="button" class="btn" value="Teachers View"></a></li>
-<li><a href="/admin_view"><input type="button" class="btn" value="Admin View"></a></li>
+<li><a><input id="technician" type="button" class="btn" value="Technician View"></a></li>
+<li><a><input id="teacher" type="button" class="btn" value="Teachers View"></a></li>
+<li><a><input id="admin" type="button" class="btn" value="Admin View"></a></li>
 {% if user.is_authenticated %}
 	<li><a><input type="button" class="btn" value="{{user}}"></a></li>
 	<li><a href="/logout/"><input type="button" class="btn" value="Logout"></a></li>
@@ -32,30 +39,101 @@ AP School INFRA
 
 
 {% block content %}
-<div id="load_view">
-	{{request.session.user}}
+<div id="load_view" style="text-align:center;padding-top:3%;">
+	{{dist_d}}
+	<div id="chart_div" style="float:left;width:40%"></div>
+	<div id="columnchart_values" style="float:left;max-width:400px"></div>
+	<!-- <img src="{%static "images/andhra_pradesh.jpg" %}" style="width:30%;"> 
+	<h4>
+		Manage all Andhra Pradesh schools incidents regarding infrastructure
+	</h4>-->
 </div>
 {% endblock %}
 
 {% block javascripts %}
 <script type="text/javascript">
-$('#teachers').on('click',function(){
+$('.nav li a input').on('click',function(){
 	{% if user.is_authenticated %}
 		window.location.href = "/{{request.session.user}}"
 	{% else %}
-		$.get('/teacher_login?login=1',function(data){
+		$.get('/'+this.id+'_login?login=1',function(data){
     	$('#load_view').html(data);
     })
 	{% endif %}
 });
-$('#technicians').on('click',function(){
-	{% if user.is_authenticated %}
-		window.location.href = "/{{request.session.user}}"
-	{% else %}
-		$.get('/technician_login?login=1',function(data){
-    		$('#load_view').html(data);
-    	});
-	{% endif %}
-});
+ // Load the Visualization API and the corechart package.
+      google.charts.load('current', {'packages':['corechart']});
+
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.charts.setOnLoadCallback(drawChart);
+
+      // Callback that creates and populates a data table,
+      // instantiates the pie chart, passes in the data and
+      // draws it.
+      function drawChart() {
+
+        // Create the data table.
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Districts');
+        data.addColumn('number', 'DeviceCount');
+        dist_data = []
+        whole_obj = []
+
+        {% for dist in dist_d %}
+        	dist_data.push(["{{dist.district}}",{{dist.devices}}]);
+        	obj = {}
+        	obj["district"]="{{dist.district}}"
+        	obj["devices"] = {{dist.devices}}
+        	obj["open_in"] = {{dist.open_in}}
+        	obj["allincidents"] = {{dist.allincidents}}
+        	obj["in_rem"] = {{dist.in_rem}}
+        	whole_obj.push(obj);
+        {% endfor %}
+        data.addRows(dist_data
+        );
+
+        // Set chart options
+        var options = {'title':'Number of Devices',
+        			is3D:true
+
+                       };
+
+        // Instantiate and draw our chart, passing in some options.
+        var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+        chart.draw(data, options);
+		google.visualization.events.addListener(chart, 'select', function() {
+  			console.log(chart.getSelection());
+  			console.log(data.getFormattedValue(chart.getSelection()[0].row,1));
+  			data_in = [["Status", "number", { role: "style" } ]]
+  			$.each(whole_obj,function(k,v){
+  				if(v.district == data.getFormattedValue(chart.getSelection()[0].row,0)){
+  					data_in.push(['allincidents',v.allincidents,'#3366CC']);
+  					data_in.push(['Open',v.open_in,'#DC3912']);
+  					data_in.push(['working',v.in_rem,'green'])
+  				}
+  			});
+  			BarsAdd(data_in);
+		});
+
+      }
+function BarsAdd(datat){
+	var data = google.visualization.arrayToDataTable(datat);
+
+      var view = new google.visualization.DataView(data);
+      view.setColumns([0, 1,
+                       { calc: "stringify",
+                         sourceColumn: 1,
+                         type: "string",
+                         role: "annotation" },
+                       2]);
+
+      var options = {
+        title: "Count of Incidents",
+        bar: {groupWidth: "95%"},
+        legend: { position: "none" },
+      };
+      var chart = new google.visualization.ColumnChart(document.getElementById("columnchart_values"));
+      chart.draw(view, options);
+}
 </script>
 {% endblock %}

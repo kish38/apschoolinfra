@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^create_incident', create_incident),
     url(r'^technician_login', technician_login),
     url(r'^technician', technician_view),
+    url(r'^admin_login', admin_login),
     url(r'^admin_view', admin_view),
 
 ]

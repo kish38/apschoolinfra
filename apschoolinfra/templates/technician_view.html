@@ -13,13 +13,20 @@ cursor:pointer;text-decoration:underline;
 </ul>
 {% endblock %}
 {% block menu_block %}
+<style type="text/css">
+ul li a input{
+	width:100%;
+}
+</style>
 <div class="navs">
-<input type="button" class="btn" value="Dashboard"></br></br>
-<input type="button" class="btn" value="Tickets"></br></br>
-<input type="button" class="btn" value="Documents"></br></br>
-<input type="button" class="btn" value="Assets"></br></br>
-<input type="button" class="btn" value="Training"></br></br>
-<a href="/logout/"><input type="button" class="btn" value="Logout"></a>
+<ul class="nav">
+<li><a><input type="button" class="btn" value="Dashboard"></a></li>
+<li><a><input type="button" class="btn" value="Tickets"></a></li>
+<li><a><input type="button" class="btn" value="Documents"></a></li>
+<li><a><input type="button" class="btn" value="Assets"></a></li>
+<li><a><input type="button" class="btn" value="Training"></a></li>
+<li><a href="/logout/"><input type="button" class="btn" value="Logout"></a></li>
+</url>
 </div>
 
 {% endblock %}

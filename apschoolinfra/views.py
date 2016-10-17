@@ -13,7 +13,24 @@ from .forms import *
 from django.forms.models import model_to_dict
 
 def home(request):
-	return render(request,'index.html',{})
+	districts = Mandal.objects.values_list('district_name',flat=True).distinct()
+	districts_d = []
+	context = {}
+	for dist in districts:
+		dist1 = {}
+		schools = School.objects.filter(mandal=Mandal.objects.filter(district_name=dist))
+		devices = Device.objects.filter(school__in=schools)
+		if len(devices) > 0:
+			dist1['devices'] = len(devices)
+			dist1['district'] = dist
+			allincidents = Incident.objects.filter(device__in=devices)
+			if len(allincidents)>0:
+				dist1['allincidents'] = len(allincidents)
+				dist1['open_in'] = len(allincidents.filter(status='open'))
+				dist1['in_rem'] = dist1['allincidents']-dist1['open_in']
+			districts_d.append(dist1)
+	context['dist_d'] = districts_d
+	return render(request,'index.html',context)
 
 def login_user(request):
 	if request.method == "POST":
@@ -32,6 +49,7 @@ def login_user(request):
 
 def logout_user(request):
 	logout(request)
+	request.session["user"] = ""
 	return HttpResponseRedirect("/")
 
 def register_user(request):
@@ -118,7 +136,7 @@ def teacher_view(request):
 			context["devices"] = devices
 			context["incidents"] = incidents
 			context["allincidents"] = allincidents
-			context["school"] = model_to_dict(school)
+			context["school"] = school
 			
 	else:
 		return HttpResponseRedirect("/")
@@ -176,7 +194,7 @@ def create_incident(request):
 	return render(request,"create_incident.html",context)
 
 def technician_login(request):
-	context = {}
+	context = {"loginas":"technician"}
 	if request.method == "POST":
 		form = LoginForm(request.POST)
 		if form.is_valid():
@@ -228,9 +246,34 @@ def technician_view(request):
 	else:
 		return HttpResponseRedirect("/")
 	return render(request,"technician_view.html",context)
-
+def admin_login(request):
+	context = {"loginas":"admin"}
+	if request.method == "POST":
+		form = LoginForm(request.POST)
+		if form.is_valid():
+			username = request.POST['username']
+			password = request.POST['password']
+			user = authenticate(username=username, password=password)
+			if user is not None:
+				if user.username == "kk":
+					login(request,user)
+					context["logged_in"] = 1;
+					messages.success(request,'Logged in as %s'%user.username)
+					request.session["user"] = "admin_view"
+				else:
+					messages.warning(request,'You are not a Admin')
+			else:
+				context["form"] = form
+				messages.error(request,"Invalid Credentials")
+		else:
+			context["form"] = form
+	else:
+		context["form"] = LoginForm()
+	return render(request,"technician_login.html",context)
 def admin_view(request):
 	context = {}
+	if request.user != User.objects.get(username='kk'):
+		return HttpResponse("Your are not authorised")
 	if request.method == "GET":
 		devices = Device.objects.all()
 		context['devices'] = devices
@@ -249,7 +292,7 @@ def admin_view(request):
 		assigned_incidents = IncidentActions.objects.all()
 		employee_incidents =  []
 		for employee in employees:
-			employee_incidents.append({'employee':employee.employee.username,'count':assigned_incidents.filter(assignee=employee).count(),'district':employee.district_name})
+			employee_incidents.append({'employee':employee,'count':assigned_incidents.filter(assignee=employee).count(),'district':employee.district_name})
 
 		incidents = Incident.objects.all()
 
@@ -258,5 +301,58 @@ def admin_view(request):
 		context["all_devices"] = all_devices
 		context["open_in"] = incidents.filter(status="open")
 		context["incidents"] = list(set(incidents)-set(context["open_in"]))
-
+		context['districts'] = Mandal.objects.values_list('district_name',flat=True).distinct()
+		context['mandals'] = mandals
+		context['schools'] = School.objects.all()
+		context['form'] = SchoolForm()
+	else:
+		try:
+			handle = request.POST['adding']
+		except Exception, e:
+			handle = request.POST['add_school']
+		if handle == 'Device':
+			try:
+				post = Device.objects.get(device_name=request.POST['device'],school=School.objects.get(pk=request.POST['school']))
+				messages.warning(request,'Asset already exists')
+			except Exception,e:
+				post = Device(school=School.objects.get(pk=request.POST["school"]),device_name=request.POST['device'],status='ok')
+				post.save()
+				context['admin_add'] = 1
+				messages.success(request,"Device added")
+			return render(request,"add_device.html",context)
+		elif handle == "1":
+			try:
+				form = SchoolForm(request.POST)
+				if form.is_valid():
+					a = form.cleaned_data['mandal']
+					if School.objects.filter(mandal=a,school_name=form.cleaned_data['school_name']):
+						return HttpResponse('This school is already added')
+					form.save()
+					return HttpResponse('School Added')
+				else:
+					return HttpResponse('Invalid Inputs')
+				return HttpResponse('df')
+			except Exception, e:
+				print e
+				return HttpResponse('dfq')
+		else:
+			try:
+				if len(User.objects.filter(username=request.POST['username']))>0:
+					messages.warning(request,'username already exists')
+					return render(request,"add_device.html",context)
+				user = User.objects.create_user(request.POST['username'],request.POST['username'],request.POST['password'])
+				user.is_active = True
+				user.save()
+				if request.POST['adding'] == 'Teacher':
+					teacher = Teacher.objects.create(teacher=user,school=School.objects.get(pk=request.POST["school"]))
+					teacher.save()
+					messages.success(request,"Teacher addedd")
+				else:
+					print request.POST['district']
+					employee = Employee.objects.create(employee=user,district_name=request.POST['district'])
+					employee.save()
+					messages.success(request,"Employee addedd")
+			except Exception,e:
+				print e
+			return render(request,"add_device.html",context)
 	return render(request,"admin_view.html",context)

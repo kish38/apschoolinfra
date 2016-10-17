@@ -27,6 +27,13 @@ class TeacherForm(forms.Form):
                 raise forms.ValidationError("The two password fields didn't match.")
         return self.cleaned_data
 
+class SchoolForm(forms.ModelForm):
+    class Meta:
+        model = School
+        fields = ('mandal','school_name','city_name','address','pincode')
+
+
+
 class DeviceForm(forms.ModelForm):
 	class Meta:
 		model = Device
