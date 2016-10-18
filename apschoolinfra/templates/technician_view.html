@@ -109,7 +109,7 @@ ul li a input{
 										<div id="in{{incident.id}}_div">
 											<p><strong>{{incident.device.device_name}}</strong></p>
 											<p>{{incident.description}}</p>
-											<p><input class="btn" data="{{incident.id}}" type="submit" value="AssignToMe"></p>
+											<p><input class="assignme btn" data="{{incident.id}}" type="submit" value="AssignToMe"></p>
 										</div>
 									</td>
 								</tr>
@@ -137,7 +137,7 @@ ul li a input{
 					</div>
 				</div>
 		  	</div>
-		  	<div style="width:60%;float:left">
+	<!--	  	<div style="width:60%;float:left">
 		  		<div class="panel panel-primary">
 					<div class="panel-heading">
 						<h3 class="panel-title">All Tickets</h3>
@@ -145,7 +145,7 @@ ul li a input{
 					<div class="panel-body">
 					</div>
 				</div>
-  			</div></br>
+  			</div></br> -->
 	</div>
 
 </div>
@@ -160,7 +160,7 @@ $('.navs input').on('click',function(){
 $('.ticket_number').on('click',function(){
 	$('#in'+this.innerHTML).toggle(1000);
 });
-$('.assginme').click(function( event ) {
+$('.assignme').click(function( event ) {
 	var incident_id = $(this).attr('data');
 	$.ajax({
 		url: "/technician_view",
