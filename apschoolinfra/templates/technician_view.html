@@ -34,6 +34,12 @@ ul li a input{
 {% block content %}
 {% csrf_token %}
 <div id="load_view">
+	<div id="Training" class="tview"  style="width:90%;margin-left:auto;margin-right:auto;display: none">
+	<h2>Computers in School</h2>
+	<iframe width="560" height="315" src="https://www.youtube.com/embed/prFHhIUr2yU" frameborder="0" allowfullscreen></iframe>
+	<h2>Computer Basics</h2>
+	<iframe width="560" height="315" src="https://www.youtube.com/embed/oin9QoJb9WU" frameborder="0" allowfullscreen></iframe>
+	</div>
 	<div id="Dashboard" class="tview"  style="width:90%;margin-left:auto;margin-right:auto;">
 	<h2>Dashboard</h2>
 		<div class="panel panel-info"  style="width:80%;">
@@ -66,7 +72,7 @@ ul li a input{
 								{% if device.status == "ok" %}
 								<td><span class="glyphicon glyphicon-ok-sign"  style="color:#5CB85C"></span></td>
 								{% else %}
-								<td><span class="glyphicon glyphicon-remove-sign"  style="color:#5CB85C"></span></td>
+								<td><span class="glyphicon glyphicon-remove-sign"  style="color:rgb(217, 83, 79)"></span></td>
 								{% endif %}
 								<td>{{device.id}}</td>
 								<td>{{device.device_name}}</td>
@@ -103,6 +109,7 @@ ul li a input{
 									<td class="ticket_number">{{incident.id}}</td>
 									<td>{{incident.title}}</td>
 									<td>{{incident.device.school.mandal.mandal_name}}</td>
+									<td>{{incident.creater}}</td>
 								</tr>
 								<tr id="in{{incident.id}}" style="display:none;padding:2%" class="border">
 									<td colspan=3>

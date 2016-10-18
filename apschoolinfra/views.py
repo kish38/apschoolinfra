@@ -11,6 +11,7 @@ from .models import *
 from .forms import *
 
 from django.forms.models import model_to_dict
+import csv,os
 
 def home(request):
 	districts = Mandal.objects.values_list('district_name',flat=True).distinct()
@@ -18,7 +19,7 @@ def home(request):
 	context = {}
 	for dist in districts:
 		dist1 = {}
-		schools = School.objects.filter(mandal=Mandal.objects.filter(district_name=dist))
+		schools = School.objects.filter(mandal__in=Mandal.objects.filter(district_name=dist))
 		devices = Device.objects.filter(school__in=schools)
 		if len(devices) > 0:
 			dist1['devices'] = len(devices)
@@ -86,7 +87,6 @@ def teacher_login(request):
 				context["login"]=1
 		except Exception,e:
 			form = TeacherForm(request.POST)
-			print 'creg'
 			if form.is_valid():
 				try:
 					school_id = form.cleaned_data['school_code']
@@ -131,6 +131,7 @@ def teacher_view(request):
 			teacher = Teacher.objects.filter(teacher=request.user)[0]
 			school = teacher.school
 			devices = Device.objects.filter(school=school)
+			print school,devices,teacher.id
 			incidents = Incident.objects.filter(creater=teacher)
 			allincidents = Incident.objects.filter(device__in=devices)
 			context["devices"] = devices
@@ -176,7 +177,6 @@ def create_incident(request):
 	if request.method == "POST":
 		form = IncidentForm(request.POST)
 		if form.is_valid():
-			print 'coming'
 			form.save()
 			messages.success(request,"Incident Created")
 		else:
@@ -255,7 +255,7 @@ def admin_login(request):
 			password = request.POST['password']
 			user = authenticate(username=username, password=password)
 			if user is not None:
-				if user.username == "kk":
+				if user.username == "admin@gmail.com":
 					login(request,user)
 					context["logged_in"] = 1;
 					messages.success(request,'Logged in as %s'%user.username)
@@ -272,7 +272,7 @@ def admin_login(request):
 	return render(request,"technician_login.html",context)
 def admin_view(request):
 	context = {}
-	if request.user != User.objects.get(username='kk'):
+	if request.user != User.objects.get(username='admin@gmail.com'):
 		return HttpResponse("Your are not authorised")
 	if request.method == "GET":
 		devices = Device.objects.all()
@@ -348,7 +348,6 @@ def admin_view(request):
 					teacher.save()
 					messages.success(request,"Teacher addedd")
 				else:
-					print request.POST['district']
 					employee = Employee.objects.create(employee=user,district_name=request.POST['district'])
 					employee.save()
 					messages.success(request,"Employee addedd")

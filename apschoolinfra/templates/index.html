@@ -40,6 +40,7 @@ ul li a input{
 
 {% block content %}
 <div id="load_view" style="text-align:center;padding-top:3%;">
+
         <h2>Devices and Incidents OverView</h2>
         <div id="chart_div" style="float:left;width:40%"></div>
         <div id="columnchart_values" style="float:left;max-width:400px"></div>
@@ -83,10 +84,15 @@ $('.nav li a input').on('click',function(){
         	dist_data.push(["{{dist.district}}",{{dist.devices}}]);
         	obj = {}
         	obj["district"]="{{dist.district}}"
-        	obj["devices"] = {{dist.devices}}
-        	obj["open_in"] = {{dist.open_in}}
-        	obj["allincidents"] = {{dist.allincidents}}
-        	obj["in_rem"] = {{dist.in_rem}}
+          {% if dist.allincidents%}
+            obj["open_in"] = {{dist.open_in}}
+            obj["allincidents"] = {{dist.allincidents}}
+            obj["in_rem"] = {{dist.in_rem}}
+          {% else %}
+            obj["open_in"] = 0
+            obj["allincidents"] = 0
+            obj["in_rem"] = 0
+          {% endif %}
         	whole_obj.push(obj);
         {% endfor %}
         data.addRows(dist_data
@@ -102,6 +108,7 @@ $('.nav li a input').on('click',function(){
         var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
         chart.draw(data, options);
 		google.visualization.events.addListener(chart, 'select', function() {
+
   			console.log(chart.getSelection());
   			console.log(data.getFormattedValue(chart.getSelection()[0].row,1));
   			data_in = [["Status", "number", { role: "style" } ]]
@@ -129,7 +136,7 @@ function BarsAdd(datat){
 
       var options = {
         title: "Count of Incidents",
-        bar: {groupWidth: "95%"},
+        bar: {groupWidth: "65%"},
         legend: { position: "none" },
       };
       var chart = new google.visualization.ColumnChart(document.getElementById("columnchart_values"));
