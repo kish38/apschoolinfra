@@ -100,6 +100,8 @@ $('.nav li a input').on('click',function(){
 
         // Set chart options
         var options = {'title':'Number of Devices',
+              height:400,
+              width:500,
         			is3D:true
 
                        };
@@ -138,6 +140,7 @@ function BarsAdd(datat){
         title: "Count of Incidents",
         bar: {groupWidth: "65%"},
         legend: { position: "none" },
+        height:400
       };
       var chart = new google.visualization.ColumnChart(document.getElementById("columnchart_values"));
       chart.draw(view, options);

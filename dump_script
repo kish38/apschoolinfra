@@ -1,0 +1,34 @@
+tot = {}
+for i in a:
+	try:
+		tot[i[1]+'-'+i[2]].append([i[2],i[4],i[5]+'\n'+i[6]+'\n'+i[7],i[0],i[-2],i[-1] ])
+	except Exception,e:
+		tot[i[1]+'-'+i[2]] = [[i[2],i[4],i[5]+'\n'+i[6]+'\n'+i[7],i[0],i[-2],i[-1] ]]
+
+total = 0
+for i in tot:
+	if total ==10:
+		break
+	
+	man = i.split('-')
+	mandal = Mandal(mandal_name=man[1],district_name=man[0])
+	mandal.save()
+	scc = 0
+	for sc in tot[i]:
+		if scc == 5:
+			break
+		school = School(mandal=mandal,school_name=sc[1],city_name=sc[0],address=sc[2],pincode=sc[3])
+		school.save()
+		cnt = int(sc[4])
+		d=0
+		fn = int(sc[5])
+		for fn1 in range(fn):
+			device = Device(school=school,device_name=sc[1][:3]+'CMP'+str(d),status='ok')
+			device.save()
+			d += 1
+		for fn1 in range(cnt-fn):
+			device = Device(school=school,device_name=sc[1][:3]+'CMP'+str(d),status='critical')
+			device.save()
+			d += 1
+		scc += 1
+	total += 1
