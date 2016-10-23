@@ -100,7 +100,7 @@ ul li a input{
 
 		<div class="ticket-row" style="padding:1%">
 			<h2>Tickets OverView</h2>
-		  	<div style="width:60%;float:left">
+		  	<div style="width:50%;float:left">
 		  		<div class="panel panel-primary">
 					<div class="panel-heading">
 						<h3 class="panel-title">Open Tickets</h3>
@@ -138,7 +138,7 @@ ul li a input{
 				</div>
 		  	</div>
 
-		  	<div style="float:left;width:35%;margin-left:1%;">
+		  	<div style="float:left;width:45%;margin-left:1%;">
 		  		<div class="panel panel-info">
 					<div class="panel-heading">
 						<h3 class="panel-title">Your Tickets</h3>
@@ -147,9 +147,21 @@ ul li a input{
 						<table class="table">
 						{% for incident in my_inc %}
 							<tr>
-								<td>{{incident.id}}</td>
+								<td  class="ticket_number">{{incident.id}}</td>
 								<td>{{incident.status}}</td>
+								<td>{{incident.device.device_name}}</td>
 							</tr>
+							<tr id="in{{incident.id}}" style="display:none;padding:2%" class="border">
+									<td colspan=3>
+										<div id="in{{incident.id}}_div">
+											<p><strong>{{incident.title}}</strong></p>
+											<p>{{incident.description}}</p>
+											{% if incident.status == "work_in_progress" %}
+											<p><input class="assignme btn" data="{{incident.id}}" type="submit" value="Resolve"></p>
+											{% endif %}
+										</div>
+									</td>
+								</tr>
 						{% endfor %}
 						</table>
 					</div>
@@ -183,7 +195,7 @@ $('.assignme').click(function( event ) {
 	$.ajax({
 		url: "/technician_view",
 		method:'POST',
-		data:{csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,"incident_id":incident_id},
+		data:{csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,"incident_id":incident_id,"state":$(this).val()},
 		success:function(data){
 			$("#in"+incident_id+"_div").html(data);
 			window.location.href="/technician"

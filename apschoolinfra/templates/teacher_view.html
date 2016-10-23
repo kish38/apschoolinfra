@@ -11,6 +11,10 @@
 <style type="text/css">
 ul li a input{
 	width:100%;
+
+}
+.ticket_number{
+cursor:pointer;text-decoration:underline;
 }
 </style>
 <div class="navs">
@@ -112,10 +116,10 @@ ul li a input{
 
 	<div id="Tickets" class="tview" style="display:none">
 		<input type="button" class="btn" id="new_incident" value="Create"></br><div id="create_incident"></div>
-		<div style="float:left;width:60%;">
+		<div style="float:left;width:50%;">
 			<div class="panel panel-primary">
 				<div class="panel-heading">
-					<h3 class="panel-title">All Incidents</h3>
+					<h3 class="panel-title">Incidents</h3>
 				</div>
 				<div class="panel-body">
 					{% for incident in allincidents %}
@@ -140,6 +144,32 @@ ul li a input{
 				</div>
 			</div>
 		</div>
+		<div style="float:left;width:45%;margin-left:1%;">
+		  		<div class="panel panel-info">
+					<div class="panel-heading">
+						<h3 class="panel-title">Resolved Tickets</h3>
+					</div>
+					<div class="panel-body">
+						<table class="table">
+						{% for incident in resolved_in %}
+							<tr>
+								<td  class="ticket_number">{{incident.id}}</td>
+								<td>{{incident.status}}</td>
+								<td>{{incident.device.device_name}}</td>
+							</tr>
+							<tr id="in{{incident.id}}" style="display:none;padding:2%" class="border">
+									<td colspan=3>
+										<div id="in{{incident.id}}_div">
+											<p><strong>{{incident.title}}</strong></p>
+											<p>{{incident.description}}</p>
+										</div>
+									</td>
+								</tr>
+						{% endfor %}
+						</table>
+					</div>
+				</div>
+		  	</div>
 	</div>
 
 </div>
@@ -163,6 +193,8 @@ $('#new_incident').click(function(){
 		$('#create_incident').html(data)
 	});
 });
-
+$('.ticket_number').on('click',function(){
+	$('#in'+this.innerHTML).toggle(1000);
+});
 </script>
 {% endblock %}

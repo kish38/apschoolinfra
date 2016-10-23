@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 from django.contrib.auth import (authenticate, login, logout)
 from django.contrib import messages
-from django.core.context_processors import csrf
+
 
 from .models import *
 from .forms import *
@@ -136,7 +136,8 @@ def teacher_view(request):
 			allincidents = Incident.objects.filter(device__in=devices)
 			context["devices"] = devices
 			context["incidents"] = incidents
-			context["allincidents"] = allincidents
+			context['resolved_in'] = allincidents.filter(status='resolved')
+			context["allincidents"] = list(set(allincidents)-set(context['resolved_in']))
 			context["school"] = school
 			
 	else:
@@ -224,10 +225,15 @@ def technician_view(request):
 		if request.method == "POST":
 			incident = Incident.objects.get(pk=request.POST["incident_id"])
 			incident.status="work_in_progress"
+			if request.POST['state'] == 'Resolve':
+				incident.status = "resolved"
 			incident.save()
 			try:
-				assi = IncidentActions(assignee=employee,incident=incident,description = "none")
-				assi.save()
+				if request.POST['state'] == 'Resolve':
+					return HttpResponse("<div class='alert alert-success'>Resolved by "+str(employee)+"</div>")
+				else:
+					assi = IncidentActions(assignee=employee,incident=incident,description = "none")
+					assi.save()
 			except Exception,e:
 				print e
 			return HttpResponse("<div class='alert alert-success'>Assigned to "+str(employee)+"</div>")
@@ -300,7 +306,8 @@ def admin_view(request):
 		context["employee_incidents"] = employee_incidents
 		context["all_devices"] = all_devices
 		context["open_in"] = incidents.filter(status="open")
-		context["incidents"] = list(set(incidents)-set(context["open_in"]))
+		context["resolved_in"] = incidents.filter(status='resolved')
+		context["incidents"] = list(set(incidents)-set(context["open_in"])-set(context['resolved_in']))
 		context['districts'] = Mandal.objects.values_list('district_name',flat=True).distinct()
 		context['mandals'] = mandals
 		context['schools'] = School.objects.all()

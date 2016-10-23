@@ -20,6 +20,11 @@ Admin View
 ul li a input{
 	width:100%;
 }
+
+.ticket_number{
+cursor:pointer;text-decoration:underline;
+}
+
 </style>
 <div class="navs">
 <ul class="nav">
@@ -129,12 +134,12 @@ ul li a input{
 				</div>
 		{% endfor %}
 	</div>
-	<div id="Tickets" class="tview" style="display:none;width:90%;margin-left:auto;margin-right:auto;">
+	<div id="Tickets" class="tview" style="display:none;width:95%;margin-left:auto;margin-right:auto;">
 		<h2>All Incidents</h2>
-		<div style="float:left;width:60%;">
+		<div style="float:left;width:50%;">
 			<div class="panel panel-primary">
 				<div class="panel-heading">
-					<h3 class="panel-title">All Incidents</h3>
+					<h3 class="panel-title">Working Incidents</h3>
 				</div>
 				<div class="panel-body">
 					{% for incident in incidents %}
@@ -159,7 +164,7 @@ ul li a input{
 				</div>
 			</div>
 		</div>
-		<div style="float:left;width:35%;margin-left:1%;">
+		<div style="float:left;width:45%;margin-left:1%;">
 			<div class="panel panel-info">
 				<div class="panel-heading">
 					<h3 class="panel-title">Open Tickets</h3>
@@ -168,10 +173,46 @@ ul li a input{
 					<table class="table">
 					{% for incident in open_in %}
 						<tr>
-							<td>{{incident.id}}</td>
+							<td class="ticket_number">{{incident.id}}</td>
 							<td>{{incident.title}}</td>
+							
 							<td>{{incident.device.school.mandal.district_name}}</td>
 						</tr>
+						<tr id="in{{incident.id}}" style="display:none;padding:2%" class="border">
+									<td colspan=3>
+										<div id="in{{incident.id}}_div">
+											<p><strong>{{incident.title}}</strong></p>
+											<p>{{incident.description}}</p>
+										</div>
+									</td>
+								</tr>
+					{% endfor %}
+					</table>
+				</div>
+			</div>
+		</div>
+		<div style="float:left;width:45%;margin-left:1%;">
+			<div class="panel panel-info">
+				<div class="panel-heading">
+					<h3 class="panel-title">Resolved Tickets</h3>
+				</div>
+				<div class="panel-body">
+					<table class="table">
+					{% for incident in resolved_in %}
+						<tr>
+							<td class="ticket_number">{{incident.id}}</td>
+							<td>{{incident.title}}</td>
+							
+							<td>{{incident.device.school.mandal.district_name}}</td>
+						</tr>
+						<tr id="in{{incident.id}}" style="display:none;padding:2%" class="border">
+									<td colspan=3>
+										<div id="in{{incident.id}}_div">
+											<p><strong>{{incident.title}}</strong></p>
+											<p>{{incident.description}}</p>
+										</div>
+									</td>
+								</tr>
 					{% endfor %}
 					</table>
 				</div>
@@ -370,6 +411,9 @@ $('#add_school_form').submit(function( event ) {
 		},
 		complete:$('#load_here1').html('loading...')
 	});
+});
+$('.ticket_number').on('click',function(){
+	$('#in'+this.innerHTML).toggle(1000);
 });
 </script>
 {% endblock %}
