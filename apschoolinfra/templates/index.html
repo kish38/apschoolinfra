@@ -43,7 +43,7 @@ ul li a input{
 
         <h2>Devices and Incidents OverView</h2>
         <div id="chart_div" style="float:left;width:40%"></div>
-        <div id="columnchart_values" style="float:left;max-width:400px"></div>
+        <div id="columnchart_values" style="float:left;margin-left:5%;max-width:400px"></div>
         <!-- <img src="{%static "images/andhra_pradesh.jpg" %}" style="width:30%;">
         <h4>
                 Manage all Andhra Pradesh schools incidents regarding infrastructure
@@ -140,7 +140,8 @@ function BarsAdd(datat){
         title: "Count of Incidents",
         bar: {groupWidth: "65%"},
         legend: { position: "none" },
-        height:400
+        height:400,
+	width:400
       };
       var chart = new google.visualization.ColumnChart(document.getElementById("columnchart_values"));
       chart.draw(view, options);
